@@ -1,3 +1,1 @@
-* Move from point arrays to a 2D array of flags
-* Scan each 3x3 area. If it contains 2 or more horizontal centres and 2 or more vertical centres, mark it.
-* Might need to do something clever to avoid multiple hits on each target.
+* Need to do something clever to avoid multiple hits on each target.

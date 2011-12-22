@@ -5,27 +5,37 @@ import java.util.LinkedList;
 
 public class LocatorFinder {
 
-	public ArrayList<Point> horizCentres=new ArrayList<Point>();
-	public ArrayList<Point> vertCentres=new ArrayList<Point>();
-    public ArrayList<Point> commonCentres=new ArrayList<Point>();
+	public static final int FLAG_HORIZ=1;
+	public static final int FLAG_VERT=2;
+	public static final int FLAG_TAGGED=4;
+	public int width, height;
+	public int[] flags;
     
     public Point[] findLocators(BinaryImage bi) {
-        
+        width=bi.getWidth();
+        height=bi.getHeight();
+        flags=new int[width*height];
         //Run findPotentialLocators in both directions and correlate the points
-        findPotentialLocators(bi,horizCentres,true);
-        findPotentialLocators(bi,vertCentres,false);
-        for (Point p: horizCentres) {
-            for (Point p2: vertCentres) {
-                if (p.equals(p2)) {
-                    commonCentres.add(p);
-                    break;
-                }
-            }
+        findPotentialLocators(bi,true);
+        findPotentialLocators(bi,false);
+        for (int x=1; x<width-1; x++) {
+        	for (int y=1; y<height-1; y++) {
+        		int horizCount=0, vertCount=0;
+        		for (int xx=-1; xx<=1; xx++) {
+        			for (int yy=-1; yy<=1; yy++) {
+        				int flag=flags[x+xx+(y+yy)*width];
+        				if ((flag&FLAG_HORIZ)!=0) horizCount++;
+        				if ((flag&FLAG_VERT)!=0) vertCount++;
+        			}
+        		}
+        		if (horizCount>1 && vertCount>1) flags[x+y*width]|=FLAG_TAGGED;
+        	}
         }
         return null;
     }
     
-    private static void findPotentialLocators(BinaryImage bi, ArrayList<Point> results, boolean horizontal) {
+    private void findPotentialLocators(BinaryImage bi, boolean horizontal) {
+    	int flag=horizontal?FLAG_HORIZ:FLAG_VERT;
         int w=bi.getWidth();
         int h=bi.getHeight();
         ArrayList<Integer> currentStack=new ArrayList<Integer>();
@@ -63,10 +73,10 @@ public class LocatorFinder {
                 if (err1>MAX_ERR || err2>MAX_ERR || err3>MAX_ERR || err4>MAX_ERR) continue;
                 //If we get here, we've got a potential
                 int bCentre=cStartPoint+currentStack.get(i)+currentStack.get(i+1)+currentStack.get(i+2)/2;
-                Point p;
-                if (horizontal) p=new Point(bCentre,a);
-                else p=new Point(a,bCentre);
-                results.add(p);
+                int point;
+                if (horizontal) point=bCentre+a*width;
+                else point=a+bCentre*width;
+                flags[point]|=flag;
             }
         }
     }

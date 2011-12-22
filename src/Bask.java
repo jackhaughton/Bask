@@ -29,12 +29,27 @@ public class Bask {
             	Graphics g=display.im.getGraphics();
             	g.drawImage(bi,5,5,null);
             	binIm.draw(g, bi.getWidth()+10, 5);
-            	g.setColor(Color.BLUE);
-            	for (Point p: lf.horizCentres) g.fillRect(p.x+5, p.y+5, 1, 1);
-            	g.setColor(Color.MAGENTA);
-            	for (Point p: lf.vertCentres) g.fillRect(p.x+5, p.y+5, 1, 1);
-            	g.setColor(Color.RED);
-            	for (Point p: lf.commonCentres) g.fillOval(p.x+5-3, p.y+5-3, 7, 7);
+            	for (int x=0; x<lf.width; x++) {
+            		for (int y=0; y<lf.height; y++) {
+            			int flags=lf.flags[x+y*lf.width];
+            			if ((flags&LocatorFinder.FLAG_TAGGED)!=0) {
+            				g.setColor(Color.RED);
+            				g.fillOval(x+5-3, y+5-3, 7, 7);
+            			}
+            			else if ((flags&(LocatorFinder.FLAG_HORIZ|LocatorFinder.FLAG_VERT))!=0) {
+            				g.setColor(Color.CYAN);
+            				g.fillRect(x+5, y+5, 1, 1);
+            			}
+            			else if ((flags&LocatorFinder.FLAG_HORIZ)!=0) {
+            				g.setColor(Color.BLUE);
+            				g.fillRect(x+5, y+5, 1, 1);
+            			}
+            			else if ((flags&LocatorFinder.FLAG_VERT)!=0) {
+            				g.setColor(Color.GREEN);
+            				g.fillRect(x+5, y+5, 1, 1);
+            			}
+            		}
+            	}
             }
             display.setVisible(true);
         } catch (IOException ex) { ex.printStackTrace(); }
