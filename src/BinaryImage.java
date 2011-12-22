@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 
@@ -27,6 +29,14 @@ public class BinaryImage {
     
     public boolean get(int x, int y) { return image[x+width*y]; }
     
+    public void draw(Graphics g, int x, int y) {
+    	for (int xx=0; xx<width; xx++) {
+    		for (int yy=0; yy<height; yy++) {
+    			g.setColor(image[xx+yy*width]?Color.white:Color.black);
+    			g.fillRect(x+xx, y+yy, 1,1);
+    		}
+    	}
+    }
     public String toString() {
         StringBuilder builder=new StringBuilder();
         

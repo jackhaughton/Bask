@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 
 public class Display {
 
-	private final Frame frame;
+	public final Frame frame;
 	public final BufferedImage im;
 	
 	public Display(String title, int width, int height) {

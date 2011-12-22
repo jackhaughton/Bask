@@ -5,21 +5,19 @@ import java.util.LinkedList;
 
 public class LocatorFinder {
 
-    public static Point[] findLocators(BinaryImage bi) {
-        ArrayList<Point> horizCentres=new ArrayList<Point>();
-        ArrayList<Point> vertCentres=new ArrayList<Point>();
+	public ArrayList<Point> horizCentres=new ArrayList<Point>();
+	public ArrayList<Point> vertCentres=new ArrayList<Point>();
+    public ArrayList<Point> commonCentres=new ArrayList<Point>();
+    
+    public Point[] findLocators(BinaryImage bi) {
+        
         //Run findPotentialLocators in both directions and correlate the points
         findPotentialLocators(bi,horizCentres,true);
         findPotentialLocators(bi,vertCentres,false);
-        System.out.println("Horizontal centres:");
-        for (Point p: horizCentres) System.out.println(p);
-        System.out.println("Vertical centres:");
-        for (Point p: vertCentres) System.out.println(p);
-        System.out.println("Common centres:");
         for (Point p: horizCentres) {
             for (Point p2: vertCentres) {
                 if (p.equals(p2)) {
-                    System.out.println(p);
+                    commonCentres.add(p);
                     break;
                 }
             }
