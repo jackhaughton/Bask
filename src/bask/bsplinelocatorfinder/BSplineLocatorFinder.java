@@ -1,5 +1,6 @@
 package bask.bsplinelocatorfinder;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -30,12 +31,11 @@ public class BSplineLocatorFinder {
 		Point2D.Double controlPoints[]=new Point2D.Double[controlPointCount];
 		for (int i=0; i<controlPointCount; i++) {
 			double luminance=horizontal?im.get(i, index):im.get(index, i);
-			controlPoints[i]=new Point2D.Double(i, luminance);	
+			controlPoints[i]=new Point2D.Double(i*100, luminance);	
 		}
 		//Find the zero crossings
 		double[] zeroCrossings=BSpline.getSecondDerivativeZeroes(controlPoints,0, controlPoints.length-4);
 		ArrayList<InterestPoint> interestPoints=new ArrayList<InterestPoint>();
-		ArrayList<Double> differences=new ArrayList<Double>();
 		//Set up the initial set of interest points, which are at the zero crossings
 		//Also find the average first derivative at those interest points
 		double gradientAvg=0;
@@ -53,6 +53,7 @@ public class BSplineLocatorFinder {
 			if (Math.abs(ip.gradient)<gradientAvg) ipLi.remove();
 		}
 		//Set up an array of differences in x between adjacent remaining interest points
+		ArrayList<Double> differences=new ArrayList<Double>();
 		for (int i=0; i<interestPoints.size(); i++) {
 			InterestPoint ip=interestPoints.get(i);
 			if (i<interestPoints.size()-1) {
@@ -61,7 +62,7 @@ public class BSplineLocatorFinder {
 		}
 		//Look for 1:1:3:1:1 ratios in adjacent differences
 		ArrayList<PotentialLocator> potentials=new ArrayList<PotentialLocator>();
-		final double MAX_ERR=0.75;
+		final double MAX_ERR=0.25;
 		for (int i=0; i<differences.size()-4; i++) {
 			outer:
 			for (int j=0; j<5; j++) {
@@ -82,7 +83,7 @@ public class BSplineLocatorFinder {
 				//Found a match
 				InterestPoint ip1=interestPoints.get(i);
 				InterestPoint ip2=interestPoints.get(i+5);
-				potentials.add(new PotentialLocator(ip1.x, ip2.x));
+				potentials.add(new PotentialLocator(ip1.x/100, ip2.x/100));
 				break;
 			}
 		}
