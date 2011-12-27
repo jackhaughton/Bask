@@ -1,4 +1,5 @@
 package bask.bsplinelocatorfinder;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -114,6 +115,7 @@ public class BSpline {
 			double startPointY=getSplinePointSecondDerivative(controlPoints, t);
 			//Now the gradient
 			double gradient=getSplinePointThirdDerivative(controlPoints, t+0.5);
+			if (Math.abs(gradient)<0.000001) continue;
 			//Calculate the constant part (equation of the form y=mx+c, so c=y-mx)
 			double constantPart=startPointY-gradient*startPointX;
 			//Find the zero crossing at x=-c/m

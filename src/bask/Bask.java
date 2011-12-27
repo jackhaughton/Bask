@@ -29,10 +29,10 @@ public class Bask {
             	}
 			});
             LuminanceImage binIm=new LuminanceImage(bi);
-            for (int x=0; x<bi.getWidth(); x++) {
+            /*for (int x=0; x<bi.getWidth(); x++) {
             	System.out.printf("%.4f,",binIm.get(x, 376));
             }
-            System.out.println();
+            System.out.println();*/
             
             /*LocatorFinder lf=new LocatorFinder();
             lf.findLocators(binIm);*/
@@ -40,22 +40,18 @@ public class Bask {
             synchronized(display.im) {
             	Graphics g=display.im.getGraphics();
             	binIm.draw(g, 5, 5);
-            	for (int y=0; y<binIm.getHeight(); y++) {
-                	PotentialLocator[] locators=BSplineLocatorFinder.findLocators(binIm, y, true);
-                	for (PotentialLocator l: locators) {
-                		int centreX=(int)((l.start+l.end)/2);
-                		g.setColor(Color.GREEN);
-                		g.fillRect(centreX+5, y+5, 1, 1);
-                	}
-                }
-            	for (int x=0; x<binIm.getWidth(); x++) {
-                	PotentialLocator[] locators=BSplineLocatorFinder.findLocators(binIm, x, false);
-                	for (PotentialLocator l: locators) {
-                		int centreY=(int)((l.start+l.end)/2);
-                		g.setColor(Color.BLUE);
-                		g.fillRect(x+5, centreY+5, 1, 1);
-                	}
-                }
+            	PotentialLocator[] locators=BSplineLocatorFinder.findLocators(binIm, true);
+            	for (PotentialLocator l: locators) {
+            		int centreX=(int)((l.start+l.end)/2);
+            		g.setColor(Color.GREEN);
+            		g.drawLine((int)(l.start+5), l.index+5, (int)(l.end+5), l.index+5);
+            	}
+            	locators=BSplineLocatorFinder.findLocators(binIm, false);
+            	for (PotentialLocator l: locators) {
+            		int centreY=(int)((l.start+l.end)/2);
+            		g.setColor(Color.BLUE);
+            		g.drawLine(l.index+5, (int)(l.start+5), l.index+5, (int)(l.end+5));
+            	}
             	/*for (int x=0; x<lf.width; x++) {
             		for (int y=0; y<lf.height; y++) {
             			int flags=lf.flags[x+y*lf.width];
