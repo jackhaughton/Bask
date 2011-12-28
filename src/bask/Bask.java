@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 
 import bask.bsplinelocatorfinder.BSplineLocatorFinder;
 import bask.bsplinelocatorfinder.BSplineLocatorFinder.PotentialLocator;
+import bask.bsplinelocatorfinder.BSplineLocatorFinder.ScanDirection;
 import bask.simplelocatorfinder.LocatorFinder;
 
 
@@ -28,6 +29,7 @@ public class Bask {
             		System.exit(0);
             	}
 			});
+            
             LuminanceImage binIm=new LuminanceImage(bi);
             /*for (int x=0; x<bi.getWidth(); x++) {
             	System.out.printf("%.4f,",binIm.get(x, 376));
@@ -40,17 +42,26 @@ public class Bask {
             synchronized(display.im) {
             	Graphics g=display.im.getGraphics();
             	binIm.draw(g, 5, 5);
-            	PotentialLocator[] locators=BSplineLocatorFinder.findLocators(binIm, true);
+            	PotentialLocator[] locators;
+            	locators=BSplineLocatorFinder.findLocators(binIm, ScanDirection.HORIZONTAL);
             	for (PotentialLocator l: locators) {
-            		int centreX=(int)((l.start+l.end)/2);
             		g.setColor(Color.GREEN);
-            		g.drawLine((int)(l.start+5), l.index+5, (int)(l.end+5), l.index+5);
+            		g.drawLine(l.startX+5, l.startY+5, l.endX+5, l.endY+5);
             	}
-            	locators=BSplineLocatorFinder.findLocators(binIm, false);
+            	locators=BSplineLocatorFinder.findLocators(binIm, ScanDirection.VERTICAL);
             	for (PotentialLocator l: locators) {
-            		int centreY=(int)((l.start+l.end)/2);
             		g.setColor(Color.BLUE);
-            		g.drawLine(l.index+5, (int)(l.start+5), l.index+5, (int)(l.end+5));
+            		g.drawLine(l.startX+5, l.startY+5, l.endX+5, l.endY+5);
+            	}
+            	locators=BSplineLocatorFinder.findLocators(binIm, ScanDirection.DIAGONAL1);
+            	for (PotentialLocator l: locators) {
+            		g.setColor(Color.CYAN);
+            		g.drawLine(l.startX+5, l.startY+5, l.endX+5, l.endY+5);
+            	}
+            	locators=BSplineLocatorFinder.findLocators(binIm, ScanDirection.DIAGONAL2);
+            	for (PotentialLocator l: locators) {
+            		g.setColor(Color.MAGENTA);
+            		g.drawLine(l.startX+5, l.startY+5, l.endX+5, l.endY+5);
             	}
             	/*for (int x=0; x<lf.width; x++) {
             		for (int y=0; y<lf.height; y++) {

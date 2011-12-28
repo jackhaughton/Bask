@@ -10,12 +10,11 @@ import bask.LuminanceImage;
 public class BSplineLocatorFinder {
 
 	public static class PotentialLocator {
-		public final int index;
-		public final double start, end;
+		public final int startX, endX, startY, endY;
 
-		public PotentialLocator(int _index, double _start, double _end) {
-			index=_index;
-			start=_start; end=_end;
+		public PotentialLocator(int _startX, int _endX, int _startY, int _endY) {
+			startX=_startX; endX=_endX;
+			startY=_startY; endY=_endY;
 		}
 	}
 	
@@ -27,19 +26,53 @@ public class BSplineLocatorFinder {
 		public InterestPoint(double _t, double _x, double _gradient) { t=_t; x=_x; gradient=_gradient; }
 	}
 	
-	public static PotentialLocator[] findLocators(LuminanceImage im, boolean horizontal) {
-		int maxIndex=horizontal?im.getHeight():im.getWidth();
-		int controlPointCount=horizontal?im.getWidth():im.getHeight();
+	public static enum ScanDirection {
+		HORIZONTAL, VERTICAL,
+		DIAGONAL1, DIAGONAL2
+	}
+	
+	public static PotentialLocator[] findLocators(LuminanceImage im, ScanDirection direction) {
+		int imWidth=im.getWidth(), imHeight=im.getHeight();
+		int maxIndex;
+		switch (direction) {
+		case HORIZONTAL: maxIndex=imHeight; break;
+		case VERTICAL: maxIndex=imWidth; break;
+		case DIAGONAL1: maxIndex=imWidth+imHeight-1; break;
+		case DIAGONAL2: maxIndex=imWidth+imHeight-1; break;
+		default: throw new IllegalArgumentException();
+		}
 		ArrayList<ArrayList<InterestPoint>> interestPoints=new ArrayList<ArrayList<InterestPoint>>();
 		double gradientAvg=0;
 		double minGradient=Double.MAX_VALUE;
 		double maxGradient=-Double.MAX_VALUE;
 		int gradientCount=0;
-		Point2D.Double controlPoints[][]=new Point2D.Double[maxIndex][controlPointCount];
+		Point2D.Double controlPoints[][]=new Point2D.Double[maxIndex][];
 		for (int index=0; index<maxIndex; index++) {
+			int controlPointCount;
+			switch (direction) {
+			case HORIZONTAL: controlPointCount=imWidth; break;
+			case VERTICAL: controlPointCount=imHeight; break;
+			case DIAGONAL1:
+			case DIAGONAL2:
+				if (imWidth<imHeight) {
+					if (index<imWidth) controlPointCount=1+index;
+					else if (index<imHeight) controlPointCount=imWidth;
+					else controlPointCount=imHeight+imWidth-(1+index);
+				}
+				else {
+					if (index<imHeight) controlPointCount=1+index;
+					else if (index<imWidth) controlPointCount=imHeight;
+					else controlPointCount=imHeight+imWidth-(1+index);
+				}
+				break;
+			default: throw new IllegalArgumentException();
+			}
+			controlPoints[index]=new Point2D.Double[controlPointCount];
 			//Form the control point array from the appropriate row or column
 			for (int i=0; i<controlPointCount; i++) {
-				double luminance=horizontal?im.get(i, index):im.get(index, i);
+				
+				Point p=getPixelPoint(index, i, imWidth, direction);
+				double luminance=im.get(p.x,p.y);
 				controlPoints[index][i]=new Point2D.Double(i, luminance);	
 			}
 			//Find the zero crossings
@@ -61,7 +94,7 @@ public class BSplineLocatorFinder {
 		}
 		gradientAvg/=gradientCount;
 		double gradientThreshold=minGradient+0.75*(maxGradient-minGradient);
-		gradientThreshold=gradientAvg;
+		//gradientThreshold=gradientAvg;
 		for (ArrayList<InterestPoint> interestPointList: interestPoints) {
 			//Exclude all interest points with first derivative values that are below average
 			ListIterator<InterestPoint> ipLi=interestPointList.listIterator();
@@ -81,7 +114,7 @@ public class BSplineLocatorFinder {
 				differences.add(interestPointsThisIndex.get(i+1).x-ip.x);
 			}
 			//Look for 1:1:3:1:1 ratios in adjacent differences
-			final double MAX_ERR=0.25;
+			final double MAX_ERR=0.5;
 			
 			for (int i=0; i<differences.size()-4; i++) {
 				//First check that we've got black, white, black, white, black
@@ -115,11 +148,27 @@ public class BSplineLocatorFinder {
 						//Found a match
 						InterestPoint ip1=interestPointsThisIndex.get(i);
 						InterestPoint ip2=interestPointsThisIndex.get(i+5);
-						potentials.add(new PotentialLocator(index, ip1.x, ip2.x));
+						Point p1=getPixelPoint(index, (int)Math.round(ip1.x), imWidth, direction);
+						Point p2=getPixelPoint(index, (int)Math.round(ip2.x), imWidth, direction);
+						potentials.add(new PotentialLocator(p1.x ,p2.x, p1.y, p2.y));
 						break;
 					}
 			}
 		}
 		return potentials.toArray(new PotentialLocator[potentials.size()]);
+	}
+	
+	private static Point getPixelPoint(int index, int i, int imWidth, ScanDirection direction) {
+		switch (direction) {
+		case HORIZONTAL: return new Point(i, index);
+		case VERTICAL: return new Point(index, i);
+		case DIAGONAL1: 
+			if (index<imWidth) return new Point(i+imWidth-(1+index), i);
+			else return new Point(i, i+1+index-imWidth);
+		case DIAGONAL2: 
+			if (index<imWidth) return new Point(index-i, i);
+			else return new Point(imWidth-i-1, i+1+index-imWidth);
+		default: throw new IllegalArgumentException();
+		}
 	}
 }
