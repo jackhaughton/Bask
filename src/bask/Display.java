@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.ScrollPane;
 import java.awt.image.BufferedImage;
 
 
@@ -20,7 +21,9 @@ public class Display {
 		frame.setMaximumSize(new Dimension(width,height));
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(new BorderLayout());
-		frame.add(canv, BorderLayout.CENTER);
+		ScrollPane sp=new ScrollPane();
+		sp.add(canv);
+		frame.add(sp, BorderLayout.CENTER);
 		im=new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
 		new Thread(new Runnable() {
 			public void run() {

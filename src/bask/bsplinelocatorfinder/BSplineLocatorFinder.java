@@ -11,10 +11,20 @@ public class BSplineLocatorFinder {
 
 	public static class PotentialLocator {
 		public final int startX, endX, startY, endY;
+		public final ScanDirection direction;
 
-		public PotentialLocator(int _startX, int _endX, int _startY, int _endY) {
+		public PotentialLocator(int _startX, int _endX, int _startY, int _endY, ScanDirection _direction) {
 			startX=_startX; endX=_endX;
 			startY=_startY; endY=_endY;
+			direction=_direction;
+		}
+		
+		public double getSquaredLength() {
+			return (endX-startX)*(endX-startX)+(endY-startY)*(endY-startY);
+		}
+		
+		public Point getCentre() {
+			return new Point((int)Math.round((startX+endX)/2.0), (int)Math.round((startY+endY)/2.0));
 		}
 	}
 	
@@ -144,7 +154,7 @@ public class BSplineLocatorFinder {
 						InterestPoint ip2=interestPointsThisIndex.get(i+5);
 						Point p1=getPixelPoint(index, (int)Math.round(ip1.x), imWidth, direction);
 						Point p2=getPixelPoint(index, (int)Math.round(ip2.x), imWidth, direction);
-						potentials.add(new PotentialLocator(p1.x ,p2.x, p1.y, p2.y));
+						potentials.add(new PotentialLocator(p1.x ,p2.x, p1.y, p2.y, direction));
 						break;
 					}
 			}
