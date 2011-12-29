@@ -118,17 +118,11 @@ public class BSplineLocatorFinder {
 			
 			for (int i=0; i<differences.size()-4; i++) {
 				//First check that we've got black, white, black, white, black
-				double centre1=(interestPointsThisIndex.get(i).t+interestPointsThisIndex.get(i+1).t)/2;
-				double centre2=(interestPointsThisIndex.get(i+1).t+interestPointsThisIndex.get(i+2).t)/2;
-				double centre3=(interestPointsThisIndex.get(i+2).t+interestPointsThisIndex.get(i+3).t)/2;
-				double centre4=(interestPointsThisIndex.get(i+3).t+interestPointsThisIndex.get(i+4).t)/2;
-				double centre5=(interestPointsThisIndex.get(i+4).t+interestPointsThisIndex.get(i+5).t)/2;
-				double lum1=BSpline.getSplinePoint(controlPoints[index], centre1).y;
-				double lum2=BSpline.getSplinePoint(controlPoints[index], centre2).y;
-				double lum3=BSpline.getSplinePoint(controlPoints[index], centre3).y;
-				double lum4=BSpline.getSplinePoint(controlPoints[index], centre4).y;
-				double lum5=BSpline.getSplinePoint(controlPoints[index], centre5).y;
-				if (lum1>lum2 || lum2<lum3 || lum3>lum4 || lum4<lum5) continue;
+				double gradient2=interestPointsThisIndex.get(i+1).gradient;
+				double gradient3=interestPointsThisIndex.get(i+2).gradient;
+				double gradient4=interestPointsThisIndex.get(i+3).gradient;
+				double gradient5=interestPointsThisIndex.get(i+4).gradient;
+				if (gradient2<0 || gradient3>0 || gradient4<0 || gradient5>0) continue;
 				outer:
 					for (int j=0; j<5; j++) {
 						double base=differences.get(i+j);
